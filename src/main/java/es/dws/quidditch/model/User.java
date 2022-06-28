@@ -19,6 +19,7 @@ public class User {
     private String dni;     //Unique
     private String pass;    //Not null
     private String team;
+    private double balance; //Not null. DEFAULT = 0, CHECK(balance>=0)
     private boolean isAdmin;    //Not null. DEFAULT = False
 
     //RELATIONSHIP
@@ -34,5 +35,11 @@ public class User {
         this.name = name;
         this.dni = dni;
         this.pass = pass;
+        this.balance = 0;
+        this.isAdmin = false;
+    }
+
+    public void addBet(Bet bet){
+        this.bets.add(bet);
     }
 }
