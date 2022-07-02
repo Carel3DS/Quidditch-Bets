@@ -2,15 +2,10 @@ package es.dws.quidditch.service;
 
 import es.dws.quidditch.model.Bet;
 import es.dws.quidditch.model.User;
-import es.dws.quidditch.repository.BetRepository;
 import es.dws.quidditch.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -19,11 +14,9 @@ public class UserService {
     @Autowired
     private BetService betService;
     @Autowired
-    private MatchService matchService;
+    private GameService matchService;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private EntityManager entityManager;
 
     //API REST service (ID = UserID)
     public void post(User user){
@@ -40,8 +33,9 @@ public class UserService {
     public User delete(String userID){
         User user = userRepository.findByName(userID).orElse(null);
         if (user!=null){
+            betService.delete(user);
             user.getBets().size();
-            userRepository.deleteUserByName(userID);
+            userRepository.deleteByName(userID);
         }
         return user;
     }
@@ -53,42 +47,29 @@ public class UserService {
         User user = this.userRepository.findByName(userID).orElse(null);
         if(user != null){
             user.addBet(bet);
+            user.setBalance(user.getBalance()-bet.getAmount());
             userRepository.save(user);
         }
     } //Assigns a new bet to a user
-    public void remove(String userID,long betID){
+    //TODO: Set control when removing a bet in user controller
+    public void remove(String userID, Bet bet){
         User user = this.get(userID);
-        Bet bet = this.betService.get(betID);
-        if (user.getBets().contains(bet)){
-            user.setBalance(user.getBalance()+bet.getAmount());
-        }
+        user.setBalance(user.getBalance()+bet.getAmount());
+        user.removeBet(bet);
+        this.betService.delete(bet.getId());
+    }//Deletes bet given user and betID
+
+    public boolean exists(String userID) {
+        return this.userRepository.findByName(userID).isPresent();
     }
 
-    //If the user creates a bet or something else, update the balance
-    public void updateBalance(String userID, double balance){
-        User user = this.userRepository.findByName(userID).orElse(null);
-        if (user != null){
-            user.setBalance(balance);
-            this.userRepository.save(user);
+    //removes all the bets and refunds users money
+    public void refund(String userID) {
+        User user = this.get(userID);
+        for(Bet bet:user.getBets()) {
+            this.remove(userID,bet);
         }
-    }
 
-    //If match has finished, update the balance of the user who have any of these bets betting in that match
-    public void updateBalance(ArrayList<Bet> bets, long matchID) {
-        ArrayList<User> users = userRepository.findAllByBetsContaining(bets);
-        double [] stats = this.matchService.stats(matchID);
-        for (User user:users){
-            double balance = user.getBalance();
-            ArrayList<Bet> userBets = user.getBets();
-            for (Bet bet:userBets){
-                if (bets.contains(bet)){
-                    if(bet.hasWon()){
-                        user.setBalance(balance+bet.getAmount()*stats[bet.getPrediction()]);
-                        this.userRepository.save(user);
-                    }
-                    bets.remove(bet);
-                }
-            }
-        }
+
     }
 }

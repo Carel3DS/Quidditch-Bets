@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
+
 
 @Entity
 @Getter
@@ -24,9 +24,12 @@ public class Bet {
 
     //RELATIONSHIP
     @ManyToOne
-    private Match match;        //Not null
+    private User user;
+    @ManyToOne
+    private Game game;          //Not null
     @ManyToOne
     private Locale locale;      //Not null
+
 
     public boolean hasWon(){
         return prediction == result;

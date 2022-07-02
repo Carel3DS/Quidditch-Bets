@@ -6,40 +6,62 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "user")
 public class User {
     //ATTRIBUTES
     @Id
-    private String email;   //Primary key
-    private String name;    //Unique
-    private String dni;     //Unique
-    private String pass;    //Not null
+    private String name;              //Primary key
+    @Column(nullable = false,unique = true)
+    private String email;             //Unique
+    @Column(nullable = false,unique = true)
+    private String dni;              //Unique
+    @Column(nullable = false)
+    private String pass;             //Not null
     private String team;
-    private double balance; //Not null. DEFAULT = 0, CHECK(balance>=0)
-    private boolean isAdmin;    //Not null. DEFAULT = False
+    private String description;
+    private double balance = 0;     //Not null. DEFAULT = 0, CHECK(balance>=0)
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles;
+
 
     //RELATIONSHIP
-    @OneToMany
-    private ArrayList<Bet> bets;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Bet> bets;
     @ManyToOne
-    private Locale locale;  //Not null
-    @OneToOne
-    private Locale owner;   //Not null if isAdmin = True
+    private Locale locale;
 
-    public User(String email, String name, String dni, String pass) {
+
+
+    public User(String email, String name, String dni, String pass, List<String> roles) {
         this.email = email;
         this.name = name;
         this.dni = dni;
         this.pass = pass;
         this.balance = 0;
-        this.isAdmin = false;
+        this.roles = roles;
+    }
+
+    public User(String user, String pass, List<String> roles) {
+        this.name = user;
+        this.pass = pass;
+        this.roles = roles;//We have only one kind of role
     }
 
     public void addBet(Bet bet){
         this.bets.add(bet);
     }
+    public void removeBet(Bet bet){ this.bets.remove(bet);}
+    public void removeBet(ArrayList<Bet> bets){
+        for (Bet bet:bets){
+            this.bets.remove(bet);
+        }
+    }
+
 }

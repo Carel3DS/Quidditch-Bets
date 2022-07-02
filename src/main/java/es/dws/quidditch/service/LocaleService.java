@@ -1,11 +1,7 @@
 package es.dws.quidditch.service;
 
-import es.dws.quidditch.model.Locale;
-import es.dws.quidditch.model.Match;
-import es.dws.quidditch.model.User;
+import es.dws.quidditch.model.*;
 import es.dws.quidditch.repository.LocaleRepository;
-import es.dws.quidditch.repository.MatchRepository;
-import es.dws.quidditch.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,49 +14,117 @@ public class LocaleService {
     @Autowired
     LocaleRepository localeRepository;
     @Autowired
-    UserRepository userRepository;
+    BetService betService;
     @Autowired
-    MatchService matchService;
+    UserService userService;
+    @Autowired
+    GameService gameService;
     //API REST service (ID = LocaleID+User)
     public void post(Locale locale, User user){
         user.setLocale(locale);
         this.localeRepository.save(locale);
     }
-    public Optional<Locale> get (String localeID){
-        return localeRepository.findByName(localeID);
+    public ArrayList<Locale> get(){
+        return new ArrayList<>(this.localeRepository.findAll());
+    }
+    public Locale get (long localeID){
+        Optional<Locale> op = localeRepository.findById(localeID);
+        return op.orElse(null);
     }
 
     public Locale get (User user){
-        return user.getOwner();
+        return user.getLocale();
     }
-    public void put(String localeID, User user, Locale newLocale){
-        if(user.getOwner().getName().equals(localeID) && localeID !=null){
-            newLocale.setName(localeID);
-            Locale oldLocale = this.localeRepository.getByName(localeID);
-            newLocale.setUsers(oldLocale.getUsers());
-            newLocale.setBets(oldLocale.getBets());
+    
+    //Adds a new user
+    public void put(long localeID, User user){
+       Locale locale=this.localeRepository.findById(localeID).orElse(null);
+       if(locale != null){
+            locale.addUser(user);
+            this.localeRepository.save(locale);
+       }
+    }
+    //Adds a new game
+    public void put(long localeID,long gameID){
+        Locale locale=this.localeRepository.findById(localeID).orElse(null);
+        Game game = this.gameService.get(gameID);
+        if(locale != null && game != null){
+            locale.addGame(game);
+            this.localeRepository.save(locale);
+        }
+    }
+    //edits the locale
+    public void put(long localeID,Locale newLocale){
+        Locale locale = this.localeRepository.findById(localeID).orElse(null);
+        if (locale != null){
+            newLocale.setUsers(locale.getUsers());
+            newLocale.setBets(locale.getBets());
+            newLocale.setGames(locale.getGames());
+            newLocale.setId(localeID);
             this.localeRepository.save(newLocale);
         }
     }
-    public Locale delete(String localeID, User user){
-        Locale locale = this.localeRepository.findByName(localeID).orElse(null);
+    
+    //Deletes a user
+    public void removeUser(long localeID, String userID){
+        User user = this.userService.get(userID);
+        Locale locale = this.get(localeID);
+        this.betService.delete(user);
+        user.setBets(null);
+        user.setLocale(null);
+        locale.removeUser(user);
+        this.userService.put(user.getName(),user);
+    }
+    //Deletes the locale
+    public Locale delete(long localeID){
+        Locale locale = this.localeRepository.findById(localeID).orElse(null);
         if (locale != null){
-            locale.getBets().size();
-            this.localeRepository.delete(locale);
-            user.setLocale(null);
+            for (User user:locale.getUsers()){
+                user.setLocale(null);
+                this.userService.put(user.getName(),user);
+                this.userService.refund(user.getName());
+            }
+            localeRepository.deleteById(localeID);
         }
         return locale;
     }
-    ///////////////////////////
+    //////////////////////////////
     // SPECIFIC LOCALE SERVICES //
-    ///////////////////////////
-    public void cancel(Match match, String localeID){
-        Locale locale = this.localeRepository.findByName(localeID).orElse(null);
-        if (locale != null && locale.hasMatch(match)){
-            locale.removeMatch(match);
-            locale.getMatches().size();
+    //////////////////////////////
+    public void update(long gameID, int r){
+        this.gameService.update(gameID,r);
+        this.betService.update(gameID);
+        Game game = this.gameService.get(gameID);
+        if(game.getStatus().equals(Status.FINISHED)){
+            double [] stats = this.gameService.stats(gameID);
+            for(Bet bet:this.betService.getByGame(gameID)){
+                User user = bet.getUser();
+                if(bet.hasWon()){
+                    user.setBalance(user.getBalance()+bet.getAmount()*stats[bet.getPrediction()]);
+                }
+                user.removeBet(bet);
+                userService.put(user.getName(),user);
+            }
+
+        }
+    }
+    public void cancel(Game game, long localeID){
+        Locale locale = this.localeRepository.findById(localeID).orElse(null);
+        if (locale != null && locale.hasGame(game)){
+            locale.removeGame(game);
+            locale.getGames().size();
             this.localeRepository.save(locale);
         }
-    } //local destroys the match
+    } //locale removes the game
 
+    public boolean hasGame(String userID, long gameID) {
+        User user = this.userService.get(userID);
+        if(user != null){
+            ArrayList<Game> games = (ArrayList<Game>)user.getLocale().getGames();
+            Game game = this.gameService.get(gameID);
+            return games.contains(game);
+        }else{
+            return false;
+        }
+    }
 }

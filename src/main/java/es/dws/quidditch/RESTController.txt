@@ -1,0 +1,198 @@
+package es.dws.quidditch.apirest;
+
+import es.dws.quidditch.model.Bet;
+import es.dws.quidditch.model.Locale;
+import es.dws.quidditch.model.Game;
+import es.dws.quidditch.model.User;
+import es.dws.quidditch.service.BetService;
+import es.dws.quidditch.service.LocaleService;
+import es.dws.quidditch.service.GameService;
+import es.dws.quidditch.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.transaction.Transactional;
+
+@RequestMapping("/api")
+@RestController
+
+//This is here just in case. To be removed later
+public class RESTController {
+
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private LocaleService localeService;
+    @Autowired
+    private BetService betService;
+    @Autowired
+    private GameService gameService;
+
+    @PostMapping("/user")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<User> postUser(@RequestBody User user){
+        this.userService.post(user);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/user/{name}")
+    public ResponseEntity<User> getUser(@PathVariable String name){
+        User user = this.userService.get(name);
+        if(user!=null) {
+            return new  ResponseEntity<>(user, HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/user/{name}")
+    public ResponseEntity<User> putUser(@PathVariable String name, @RequestBody User user){
+        if(this.userService.exists(name)){
+            this.userService.put(name,user);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @Transactional
+    @DeleteMapping("/user/{name}")
+    public ResponseEntity<User> deleteUser(@PathVariable String name){
+        if(this.userService.get(name) != null){
+            User deleted = this.userService.delete(name);
+            return new ResponseEntity<>(deleted, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    //REST BET
+    @PostMapping("/bet")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Bet> postBet(@RequestBody Bet bet, @RequestParam String name, @RequestParam long gameID){
+        if(this.gameService.exists(gameID) && this.userService.exists(name) && this.localeService.hasGame(name,gameID)){
+            User user = this.userService.get(name);
+            double balance = user.getBalance();
+            if(balance>=bet.getAmount()){
+                bet.setGame(this.gameService.get(gameID));
+                this.betService.post(user,bet);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @GetMapping("/bet")
+    public ResponseEntity<Bet> getBet(@RequestParam long id){
+        Bet bet = this.betService.get(id);
+        if(bet!=null) {
+            return new  ResponseEntity<>(bet, HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @PutMapping("/bet")
+    public ResponseEntity<Bet> putBet(@RequestParam long id, @RequestBody Bet bet){
+        if(this.betService.get(id) != null){
+            this.betService.put(id,bet);
+            return new ResponseEntity<>(bet, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @Transactional
+    @DeleteMapping("/bet")
+    public ResponseEntity<Bet> deleteBet(@RequestParam long id){
+        Bet bet = this.betService.get(id);
+        if(bet != null){
+            this.betService.delete(id);
+            return new ResponseEntity<>(bet, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    //REST LOCALE
+    @PostMapping("/locale")
+    public ResponseEntity<Locale> postLocale(@RequestBody Locale locale,@RequestParam String userID){
+        if (userService.exists(userID)){
+            User user = this.userService.get(userID);
+            if(user.isAdmin()){
+                this.localeService.post(locale,user);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }else {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @GetMapping("/locale/{id}")
+    public ResponseEntity<Locale> getLocale(@PathVariable long id){
+        Locale locale = this.localeService.get(id);
+        if(locale!=null) {
+            return new  ResponseEntity<>(locale, HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @PutMapping("/locale/{id}")
+    public ResponseEntity<Locale> putLocale(@PathVariable long id, @RequestBody Locale locale){
+        if(this.localeService.get(id) != null){
+            this.localeService.put(id,locale);
+            return new ResponseEntity<>(locale, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @Transactional
+    @DeleteMapping("/locale/{id}")
+    public ResponseEntity<Locale> deleteLocale(@PathVariable long id){
+        if(this.localeService.get(id) != null){
+            Locale deleted = this.localeService.delete(id);
+            return new ResponseEntity<>(deleted, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    //REST GAME
+    @PostMapping("/game")
+    public ResponseEntity<Game> postGame(@RequestBody Game game){
+        this.gameService.post(game);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/game")
+    public ResponseEntity<Game> getGame(@RequestParam long id){
+        Game game = this.gameService.get(id);
+        if(game!=null) {
+            return new  ResponseEntity<>(game, HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @PutMapping("/game")
+    public ResponseEntity<Game> putGame(@RequestParam long id, @RequestBody Game game){
+        if(this.gameService.get(id) != null){
+            this.gameService.put(id,game);
+            return new ResponseEntity<>(game, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @Transactional
+    @DeleteMapping("/game")
+    public ResponseEntity<Game> deleteGame(@RequestParam long id){
+        if(this.gameService.get(id) != null){
+            Game deleted = this.gameService.delete(id);
+            return new ResponseEntity<>(deleted, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
+    
+}

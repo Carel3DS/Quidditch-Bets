@@ -1,19 +1,29 @@
 package es.dws.quidditch.repository;
 
-import es.dws.quidditch.model.Bet;
-import es.dws.quidditch.model.Match;
+import es.dws.quidditch.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
 
-public interface BetRepository extends JpaRepository<Bet,Long> {
-    @Override
-    Optional<Bet> findById(Long betID);
+public interface BetRepository extends JpaRepository<Bet, Long> {
 
-    @Override
-    void deleteById(Long betID);
+    Optional<Bet> findByUserAndGame(User user, Game game);
 
-    ArrayList<Bet> findAllByMatch(Match match);
+
+    void deleteById(long id);
+
+    Bet getTopByOrderByIdDesc();
+    @Override
+    ArrayList<Bet> findAll();
+
+    ArrayList<Bet> findAllByGame(Game game);
+
+    void deleteByUser(User user);
+
+    void deleteByLocale(Locale locale);
+
+    ArrayList<Bet> findAllByLocale(Locale locale);
+
 }

@@ -1,35 +1,53 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <title>Area administrador</title>
+    <meta charset="UTF-8">
+    <title>Área administrador</title>
+
 </head>
 <body>
 
 <h1>Área de administrador</h1>
 
-<a href="">Identifícate</a>
-<button>inicio</button>
-<button>locales</button>
-<button>apuestas</button>
-<button>contacto</button>
+<div id="navbar"></div>
 
-<h2>Correo</h2>
-<ul>
-    <li><a href="">Mensaje 1</a></li>
-    <li><a href="">Mensaje 2</a></li>
-    <li><a href="">Mensaje 3</a></li>
-</ul>
-
-<h2>Gestionar locales</h2>
-<button>Nuevo local</button>
-<ul>
-
-    <li><a href="">Local 1</a> <button>Editar</button> <button>Eliminar</button></li><br>
-    <li><a href="">Local 2</a> <button>Editar</button> <button>Eliminar</button></li>
-
-</ul>
+<h2>Gestionar tu local</h2>
+<form method="post" action="">
+    Nombre:
+    <input type="text" placeholder="nombre del local" value="{{name}}" name="name"><br><br>
+    Direccion:
+    <input type="text" placeholder="dirección" value="{{address}}" name="address"><br><br>
+    Tasa:
+    <input type="number" placeholder="tasa" value="{{fee}}" name="fee"> % <br><br>
+    <button type="submit">Aceptar cambios</button> <button type="submit">Eliminar</button><br>
+</form>
+<h2>Apuestas realizadas</h2>
+<table>
+    <tr>
+        <th>Usuario</th>
+        <th>Partido</th>
+        <th>Prediccion</th>
+        <th>Monto</th>
+    </tr>
+    <tr>
+        <td>Fulano</td>
+        <td>A vs B</td>
+        <td>Equipo A</td>
+        <td>123,00€</td>
+        <td><button>Retirar</button><td>
+    </tr>
+    <tr>
+        <td>Fulano</td>
+        <td>C vs D</td>
+        <td>Equipo C</td>
+        <td>123,00€</td>
+        <td><button>Retirar</button><td>
+    </tr>
+</table>
 
 <p>© Carel Sánchez, 2022</p>
+<script src="/static/assets/js/jquery.min.js"></script>
+<script src="/static/assets/js/navbar.js"></script>
 </body>
 
 </html>
