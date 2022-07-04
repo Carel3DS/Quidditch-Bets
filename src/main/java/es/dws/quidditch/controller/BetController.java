@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @Controller
@@ -33,14 +34,21 @@ public class BetController {
         }
     }
     @GetMapping("/bet")
-    public String show (Model model/*, @RequestParam long id*/){
+    public String show (Model model){
         //Bet bet = this.service.get(id);
         return "bet_page";
     }
     @PostMapping("/edit_bet")
     @ResponseStatus(HttpStatus.OK)
-    public String edit(Model model,long betID, Bet newBet){
-        this.service.put(betID,newBet);
+    public String edit(Model model, long betID, Bet newBet, HttpServletRequest request){
+        if(request.isUserInRole("ADMIN")){
+            this.service.put(betID,newBet);
+            model.addAttribute("confirm","Cambio realizado");
+            model.addAttribute("confirm_message","Se ha modificado la apuesta correctamente");
+        }else{
+            model.addAttribute("confirm","Error");
+            model.addAttribute("confirm_message","No estás autorizado para esta acción");
+        }
         return "confirm";
     }
     @PostMapping("/delete_bet")

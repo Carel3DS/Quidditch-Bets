@@ -1,31 +1,45 @@
 package es.dws.quidditch.controller;
 
+import es.dws.quidditch.model.Game;
 import es.dws.quidditch.model.Locale;
 import es.dws.quidditch.model.User;
 import es.dws.quidditch.service.LocaleService;
+import es.dws.quidditch.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/locale")
 public class LocaleController {
     @Autowired
     private LocaleService service;
-    
-    @GetMapping("/locales/{id}")
-    public String showLocale (Model model, @PathVariable long id){
+    @Autowired
+    private UserService userService;
+
+    //TODO: get user's balance
+    @GetMapping("/locale/{id}")
+    public String showLocale (Model model, @PathVariable long id, HttpServletRequest request){
         Locale locale = this.service.get(id);
+        List<Game> games = locale.getGames();
+        User user = this.userService.get(request.getUserPrincipal().getName());
+        model.addAttribute("amount",user.getBalance());
+        model.addAttribute("games",games);
         return "locale";
     }
     @GetMapping("/locale")
     public String showLocale (Model model){
-        ArrayList<Locale> locale = this.service.get();
-        return "locale";
+        ArrayList<Locale> locales = this.service.get();
+        //model.addAttribute("locales",locales);
+        return "section";
     }
     @PostMapping("/edit_locale/add_user")
     @ResponseStatus(HttpStatus.OK)
@@ -43,7 +57,7 @@ public class LocaleController {
     //TODO: add 'delete' for every attribute (user,match,bet)
 
     @PostMapping("/edit_locale")
-    public String editLocale(Model model, long localeID, Locale newLocale){
+    public String editLocale(Model model,@RequestParam long localeID, Locale newLocale){
         this.service.put(localeID,newLocale);
         return "confirm";
     }

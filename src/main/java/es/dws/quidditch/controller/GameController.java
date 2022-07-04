@@ -26,7 +26,7 @@ public class GameController {
     @GetMapping("/games")
     public String show (Model model){
         ArrayList<Game> game = this.service.get();
-        return "games";
+        return "section";
     }
     @PostMapping("/edit_game")
     @ResponseStatus(HttpStatus.OK)

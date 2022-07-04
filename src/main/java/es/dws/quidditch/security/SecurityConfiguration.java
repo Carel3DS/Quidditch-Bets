@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.security.SecureRandom;
@@ -18,47 +17,58 @@ import java.security.SecureRandom;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
-    RepositoryUserDetailsService UserDetailsService;
+    RepositoryUserDetailsService userDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10, new SecureRandom());
     }
     //Method that allow us to configure access to webpages.
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        //Validating user...
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-            .authorizeHttpRequests()    //To all the requests
-            .antMatchers("/","index","/css/*","/js/*")
-            .permitAll()
-            .anyRequest()               //Every request
-            .authenticated()            //Must be authenticated
-            .and()
-            .httpBasic();
-        //Through a basic authentication mechanism
 
         //Public pages
-        http.authorizeRequests().antMatchers("/").permitAll();
-        http.authorizeRequests().antMatchers("/login").permitAll();
-        http.authorizeRequests().antMatchers("/loginerror").permitAll();
-        http.authorizeRequests().antMatchers("/logout").permitAll();
+        http
+                .authorizeRequests()
+                .antMatchers("/",
+                             "/login",
+                             "/register",
+                             "/locale",
+                             "/games",
+                             "/js/*",
+                             "/css/*")
+                .permitAll();
+//        http.authorizeRequests().antMatchers("/").permitAll();
+        //        http.authorizeRequests().antMatchers("login").permitAll();
+//        http.authorizeRequests().antMatchers("/register").permitAll();
+//        http.authorizeRequests().antMatchers("/locale").permitAll();
+//        http.authorizeRequests().antMatchers("/bets").permitAll();
 
-        http.authorizeRequests().antMatchers("/register").permitAll();
-        http.authorizeRequests().antMatchers("/locale").permitAll();
-        http.authorizeRequests().antMatchers("/games").permitAll();
+
+
+         // http.authorizeRequests().antMatchers("/register").permitAll();
+
+        //http.authorizeRequests().antMatchers("/games").permitAll();
 
         //Public endpoints
-        http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/locale/**").permitAll();
-        http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/game").permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/locale/**","/api/game").permitAll();
+        //http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/game").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/user").permitAll();
 
+        //Authenticated pages
+        http.authorizeRequests().antMatchers("/locale").hasAnyRole("USER","ADMIN");
         //Authenticated endpoints
-        http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").authenticated();
-        http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/bet").authenticated();
-        http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/bet").authenticated();
-        http.authorizeRequests().antMatchers(HttpMethod.PUT, "/api/user/**").authenticated();
-        http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/api/user/**").authenticated();
-        http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/api/bet").authenticated();
+        http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").hasAnyRole("USER","ADMIN");
+        http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/bet").hasAnyRole("USER","ADMIN");
+        http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/bet").hasAnyRole("USER","ADMIN");
+        http.authorizeRequests().antMatchers(HttpMethod.PUT, "/api/user/**").hasAnyRole("USER","ADMIN");
+        http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/api/user/**").hasAnyRole("USER","ADMIN");
+        http.authorizeRequests().antMatchers(HttpMethod.DELETE, "/api/bet").hasAnyRole("USER","ADMIN");
 
         //Private pages and endpoints (the rest of them)
         http.authorizeRequests().anyRequest().hasRole("ADMIN");
@@ -67,24 +77,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.formLogin().loginPage("/login");
         http.formLogin().usernameParameter("username");
         http.formLogin().passwordParameter("password");
-        http.formLogin().defaultSuccessUrl("/private");
         http.formLogin().failureUrl("/loginerror");
-        // Logout
+        http.formLogin().defaultSuccessUrl("/logged");
+         // Logout
         http.logout().logoutUrl("/logout");
         http.logout().logoutSuccessUrl("/");
 
         // Disable CSRF at the moment
         http.csrf().disable();
 
-    }
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        //Validating user...
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        String encodedPassword = encoder.encode("pass");
-        auth.inMemoryAuthentication().withUser("user").password(encodedPassword).roles("USER");
-
-        //Admin
-        auth.inMemoryAuthentication().withUser("admin")
-                .password(encoder.encode("adminpass")).roles("USER", "ADMIN");
     }
 }

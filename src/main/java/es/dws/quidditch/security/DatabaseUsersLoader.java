@@ -18,17 +18,16 @@ public class DatabaseUsersLoader {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public DatabaseUsersLoader() {
-    }
+    public DatabaseUsersLoader() {}
 
     @PostConstruct
     private void initDatabase() {
-        userRepository.save(new User("user",
+        userRepository.save(new User("user@user.com","user","12345678T",
                             passwordEncoder.encode("pass"),
-                            new ArrayList<>(Arrays.asList("USER"))));
+                            "USER"));
         
-        userRepository.save(new User("admin",
+        userRepository.save(new User("admin@admin.com","admin","87654321T",
                                     passwordEncoder.encode("adminpass"),
-                                    new ArrayList<>(Arrays.asList("USER","ADMIN"))));
+                                    "USER","ADMIN"));
     }
 }

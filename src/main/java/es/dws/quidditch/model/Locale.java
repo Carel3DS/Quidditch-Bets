@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -20,6 +21,10 @@ public class Locale {
     private String name;
     @Column(nullable = false)
     private String address;     //Not null
+    @Column(nullable = false)
+    private LocalTime open;
+    @Column(nullable = false)
+    private LocalTime close;
     private double fee = 0;     //DEFAULT: 0
 
     //RELATIONSHIP

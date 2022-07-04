@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,6 +29,11 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
 
+    //Stats
+    private double win;
+    private double lose;
+    private double earnings;
+    private double losses;
 
     //RELATIONSHIP
     @OneToMany(cascade = CascadeType.ALL)
@@ -39,29 +43,19 @@ public class User {
 
 
 
-    public User(String email, String name, String dni, String pass, List<String> roles) {
+    public User(String email, String name, String dni, String pass, String... roles) {
         this.email = email;
         this.name = name;
         this.dni = dni;
         this.pass = pass;
         this.balance = 0;
-        this.roles = roles;
-    }
-
-    public User(String user, String pass, List<String> roles) {
-        this.name = user;
-        this.pass = pass;
-        this.roles = roles;//We have only one kind of role
+        this.roles = List.of(roles);
     }
 
     public void addBet(Bet bet){
         this.bets.add(bet);
     }
     public void removeBet(Bet bet){ this.bets.remove(bet);}
-    public void removeBet(ArrayList<Bet> bets){
-        for (Bet bet:bets){
-            this.bets.remove(bet);
-        }
-    }
-
+    public double performance(){ return this.win/(this.win+this.lose);}
+    public double totalEarnings(){return this.earnings-this.losses;}
 }
