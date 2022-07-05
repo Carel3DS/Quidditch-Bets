@@ -1,16 +1,20 @@
 package es.dws.quidditch.model;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@Data
 @NoArgsConstructor
 public class Locale {
     //ATTRIBUTES
@@ -29,17 +33,21 @@ public class Locale {
 
     //RELATIONSHIP
     @ManyToMany
-    private List<Game> games;
+    private List<Game> games = new ArrayList<>();
     @OneToMany
-    private List<Bet> bets;
+    private List<Bet> bets = new ArrayList<>();
     @OneToMany
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
     @OneToOne
     private User owner;
-    public Locale(String name, String address, double fee) {
+    public Locale(String name, String address, double fee, String open, String close) {
         this.name = name;
         this.address = address;
         this.fee = fee;
+        this.open = LocalTime.parse(open,
+                DateTimeFormatter.ofPattern("H:mm"));
+        this.close = LocalTime.parse(close,
+                DateTimeFormatter.ofPattern("H:mm"));
     }
     public void addGame(Game game){
         this.games.add(game);

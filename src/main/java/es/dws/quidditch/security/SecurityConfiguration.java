@@ -61,7 +61,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/user").permitAll();
 
         //Authenticated pages
-        http.authorizeRequests().antMatchers("/locale").hasAnyRole("USER","ADMIN");
+        http.authorizeRequests().antMatchers("/user/**").hasAnyRole("USER","ADMIN");
+        http.authorizeRequests().antMatchers("/bets").hasAnyRole("USER","ADMIN");
         //Authenticated endpoints
         http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").hasAnyRole("USER","ADMIN");
         http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/bet").hasAnyRole("USER","ADMIN");
@@ -75,8 +76,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         // Login form
         http.formLogin().loginPage("/login");
-        http.formLogin().usernameParameter("username");
-        http.formLogin().passwordParameter("password");
+        http.formLogin().usernameParameter("user");
+        http.formLogin().passwordParameter("pass");
         http.formLogin().failureUrl("/loginerror");
         http.formLogin().defaultSuccessUrl("/logged");
          // Logout

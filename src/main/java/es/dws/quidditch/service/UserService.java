@@ -4,6 +4,7 @@ import es.dws.quidditch.model.Bet;
 import es.dws.quidditch.model.User;
 import es.dws.quidditch.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,12 +15,13 @@ public class UserService {
     @Autowired
     private BetService betService;
     @Autowired
-    private GameService matchService;
-    @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     //API REST service (ID = UserID)
     public void post(User user){
+        user.setPass(passwordEncoder.encode(user.getPass()));
         userRepository.save(user);
     }
     public User get(String userID){
@@ -29,6 +31,11 @@ public class UserService {
     public void put(String userID, User newUser){
         newUser.setName(userID);
         userRepository.save(newUser);
+    }
+    public void put(User user) {
+        if(this.exists(user.getName())){
+            userRepository.save(user);
+        }
     }
     public User delete(String userID){
         User user = userRepository.findByName(userID).orElse(null);
@@ -72,4 +79,6 @@ public class UserService {
 
 
     }
+
+
 }

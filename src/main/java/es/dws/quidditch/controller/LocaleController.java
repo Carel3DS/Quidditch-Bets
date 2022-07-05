@@ -11,14 +11,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
-@RequestMapping("/locale")
 public class LocaleController {
     @Autowired
     private LocaleService service;
@@ -26,6 +24,21 @@ public class LocaleController {
     private UserService userService;
 
     //TODO: get user's balance
+    @PostConstruct
+    public void postConstruct(){
+        this.userService.post(new User("user@user.com","user","12345678T",
+                "pass",
+                "USER"));
+
+        this.userService.post(new User("admin@admin.com","admin","87654321T",
+                "adminpass",
+                "USER","ADMIN"));
+        Locale locale = new Locale("Móstoles I","Calle Tulipán 24",0.25, "8:00","20:00");
+        locale.setOwner(this.userService.get("admin"));
+        User user =this.userService.get("user");
+        locale.addUser(user);
+        this.service.post(locale);
+    }
     @GetMapping("/locale/{id}")
     public String showLocale (Model model, @PathVariable long id, HttpServletRequest request){
         Locale locale = this.service.get(id);
@@ -33,10 +46,11 @@ public class LocaleController {
         User user = this.userService.get(request.getUserPrincipal().getName());
         model.addAttribute("amount",user.getBalance());
         model.addAttribute("games",games);
+        model.addAttribute("locale",locale);
         return "locale";
     }
     @GetMapping("/locale")
-    public String showLocale (Model model){
+    public String showAllLocale (Model model){
         ArrayList<Locale> locales = this.service.get();
         //model.addAttribute("locales",locales);
         return "section";

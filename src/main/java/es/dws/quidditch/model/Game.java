@@ -15,7 +15,6 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "game")
 public class Game {
     //ATTRIBUTES
     @Id
@@ -23,8 +22,8 @@ public class Game {
     private long id;            //Primary Key
     @Column(nullable = false)
     private String team1;       //Not null
-    @Column(nullable = false, columnDefinition = "CHECK (UPPER(team1) <> UPPER(team2))")
-    private String team2;       //Not null, team2<>team1
+    @Column(nullable = false)
+    private String team2;       //Not null
     @Column(nullable = false)
     private LocalDate date;     //Not null
     @Column(nullable = false)

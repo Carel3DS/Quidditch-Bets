@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServlet;
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -20,7 +20,6 @@ public class UserController {
     private LocaleService localeService;
     @Autowired
     private UserService service;
-
 
     @PostMapping("/new_user")
     @ResponseStatus(HttpStatus.CREATED)
@@ -63,6 +62,10 @@ public class UserController {
     }
 
     //TODO: implement login template as login page
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
 
     @GetMapping("/register")
     public String getRegister (){

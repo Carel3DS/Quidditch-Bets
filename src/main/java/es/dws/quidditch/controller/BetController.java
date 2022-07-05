@@ -2,18 +2,15 @@ package es.dws.quidditch.controller;
 
 import es.dws.quidditch.model.Bet;
 import es.dws.quidditch.model.User;
-import es.dws.quidditch.repository.BetRepository;
 import es.dws.quidditch.service.BetService;
 import es.dws.quidditch.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
 
 @Controller
 public class BetController {

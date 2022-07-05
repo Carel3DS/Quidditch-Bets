@@ -22,6 +22,11 @@ public class LocaleService {
     //API REST service (ID = LocaleID+User)
     public void post(Locale locale, User user){
         user.setLocale(locale);
+        locale.addUser(user);
+        this.userService.put(user);
+        this.localeRepository.save(locale);
+    }
+    public void post(Locale locale) {
         this.localeRepository.save(locale);
     }
     public ArrayList<Locale> get(){
@@ -127,4 +132,6 @@ public class LocaleService {
             return false;
         }
     }
+
+
 }
