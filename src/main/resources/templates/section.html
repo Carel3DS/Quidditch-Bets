@@ -5,17 +5,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Quidditch</title>
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../../../../../assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=ABeeZee">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Muli">
-    <link rel="stylesheet" href="/assets/fonts/font-awesome.min.css">
-    <link rel="stylesheet" href="/assets/css/Dark-NavBar.css">
-    <link rel="stylesheet" href="/assets/css/Footer-Dark.css">
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <link rel="stylesheet" href="/assets/css/table.css">
-    <link rel="stylesheet" href="/assets/css/untitled.css">
+    <link rel="stylesheet" href="../../../../../../../assets/css/Dark-NavBar.css">
+    <link rel="stylesheet" href="../../../../../../../assets/css/Footer-Dark.css">
+    <link rel="stylesheet" href="../../../../../../../assets/css/styles.css">
+    <link rel="stylesheet" href="../../../../../../../assets/css/table.css">
+    <link rel="stylesheet" href="../../../../../../../assets/css/untitled.css">
 </head>
 
 <body>
@@ -33,18 +32,27 @@
         </div>
         <div class="row">
             <div class="col">
-                <section class="py-4 py-xl-5">
-                    <div class="text-white bg-dark border rounded border-0 p-4 p-md-5" style="height: 226.4px;margin: 0px;">
-                        <p class="mb-4">{{content}}</p>
+                <section>
+                    <div class="text-white bg-dark border rounded border-0 p-4 p-md-5" style="margin-bottom: 48px;"><input type="search" style="margin-bottom: 24px;" placeholder="Buscar...">
+                        <div class="row articles rounded-3">
+                            <div class="col col-sm-6 col-md-3">
+                                <div class="card" style="background-color: #333333;border-radius: 0.25rem;">
+                                    <div class="card-body"><a href="#"><img class="img-fluid" src="desk.jpg"></a>
+                                        <h3 class="name">{{name}}</h3>
+                                        <p class="description">Horario: {{open}}-{{close}}<br>Dirección: {{address}}<br>Tasas: {{fee}}</p><a class="btn btn-primary border-0" href="/locale/{{id}}">Visitar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
         </div>
     </div>
     <div id="footer"></div>
-    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../../../../../../../assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="/assets/js/nav-foot.js"></script>
+    <script src="../../../../../../../assets/js/nav-foot.js"></script>
 </body>
 
 </html>
