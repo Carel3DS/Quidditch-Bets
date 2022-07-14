@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 @Controller
 public class GameController {
@@ -25,7 +26,7 @@ public class GameController {
     }
     @GetMapping("/games")
     public String show (Model model){
-        ArrayList<Game> game = this.service.get();
+        Collection<Game> game = this.service.get();
         return "section";
     }
     @PostMapping("/edit_game")

@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
+
 
 @RequestMapping("/api")
 @RestController
@@ -23,7 +23,20 @@ public class RESTlocale {
     public ResponseEntity<Locale> postLocale(@RequestBody Locale locale, @RequestParam String userID){
         if (userService.exists(userID)){
             User user = this.userService.get(userID);
-            this.localeService.post(locale,user);
+            locale.setOwner(user);
+            user.setLocale(locale);
+            this.localeService.post(locale);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @PostMapping("/locale/{id}")
+    public ResponseEntity<Locale> postLocale(@PathVariable long id, @RequestParam String userID){
+        if (userService.exists(userID) && localeService.exists(id)){
+            User user = this.userService.get(userID);
+            user.setLocale(localeService.get(id));
+            this.localeService.addUser(userID,id);
             return new ResponseEntity<>(HttpStatus.OK);
         }else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -47,7 +60,7 @@ public class RESTlocale {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @Transactional
+
     @DeleteMapping("/locale/{id}")
     public ResponseEntity<Locale> deleteLocale(@PathVariable long id){
         if(this.localeService.get(id) != null){

@@ -40,6 +40,7 @@
                             <li class="list-group-item" style="background: #333333;">
                                 <div class="row">
                                     <div class="col-md-6">
+                                        {{#locale}}
                                         <div class="intro">
                                             <h2 class="text-start">{{name}}</h2>
                                         </div>
@@ -48,6 +49,7 @@
                                             <li>Horario: {{open}}-{{close}}<br></li>
                                         </ul><a class="btn btn-primary border-0" href="/locale/{{id}}">Visitar</a>
                                     </div>
+                                    {{/locale}}
                                     <div class="col-md-6"><img></div>
                                 </div>
                             </li>
@@ -70,12 +72,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {{#game}}
                                     <tr>
                                         <td>{{team1}} vs {{team2}}</td>
                                         <td>{{date}}</td>
                                         <td>{{time}}</td>
                                         <td><a href="/locale/{{id}}" style="color: white;">{{locale_name}}</a></td>
                                     </tr>
+                                    {{/ game}}
                                 </tbody>
                             </table>
                         </div>

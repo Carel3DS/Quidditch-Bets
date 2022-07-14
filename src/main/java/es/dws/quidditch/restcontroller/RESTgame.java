@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
+
 
 @RequestMapping("/api")
 @RestController
@@ -38,7 +38,7 @@ public class RESTgame {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @Transactional
+
     @DeleteMapping("/game")
     public ResponseEntity<Game> deleteGame(@RequestParam long id){
         if(this.gameService.get(id) != null){

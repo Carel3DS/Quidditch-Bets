@@ -3,65 +3,70 @@ package es.dws.quidditch.service;
 import es.dws.quidditch.model.Bet;
 import es.dws.quidditch.model.Game;
 import es.dws.quidditch.model.Status;
-import es.dws.quidditch.repository.GameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
+//not persistent
 @Service
 public class GameService {
 
-    @Autowired
-    GameRepository gameRepository;
+    private Map<Long, Game> games= new ConcurrentHashMap<>();
+    private AtomicLong lastID= new AtomicLong();
 
-    //API REST service
     public void post(Game game){
-        gameRepository.save(game);
+        long id = lastID.incrementAndGet();
+        game.setId(id);
+        games.put(id,game);
     }
 
-    //Get all gamees
-    public ArrayList<Game> get(){
-        return new ArrayList<>(this.gameRepository.findAll());
+
+    public Collection<Game> get(){
+        return games.values();
     }
-    //Get a specific game
-    public Game get(long gameID){
-        Optional<Game> op = gameRepository.findById(gameID);
-        return op.orElse(null);
+
+    public Game get(long id){
+        return games.get(id);
     }
-    public void put(long gameID, Game newGame){
-            newGame.setId(gameID);
-            gameRepository.save(newGame);
+
+    public void put(long id, Game game){
+        games.put(id,game);
     }
-    public Game delete(long gameID){
-        Game game = gameRepository.findById(gameID).orElse(null);
-        if (game != null){
-            game.getBets().size();
-            gameRepository.deleteById(gameID);
+
+    public Game delete(long id){
+        Game game = games.get(id);
+        if(game !=null){
+            games.remove(id);
         }
         return game;
     }
     ///////////////////////////
     // SPECIFIC GAME SERVICES //
     ///////////////////////////
+    public boolean exists(long gameID) {
+        return this.games.containsKey(gameID);
+    }
+
     public void cancel(long gameID){
         Game game = this.get(gameID);
         if(game != null){
             game.setStatus(Status.CANCELLED);
-            gameRepository.save(game);
+            games.put(gameID,game);
         }
 
-    } //The game sets itself as "Cancelled" and destroys all the bets.
+    } //The game is set as "Cancelled"
 
     public void update(long gameID, int r){
-        Game game = this.gameRepository.findById(gameID).orElse(null);
+        Game game = this.games.get(gameID);
         if(game != null){
             game.setStatus(game.getStatus().next());
             if (game.getStatus().equals(Status.FINISHED)){
                 game.setResult(r);
             }
-            this.gameRepository.save(game);
+            this.games.put(gameID, game);
         }
     } //Updates the game with its results/status of the game.
 
@@ -77,9 +82,5 @@ public class GameService {
         }
         int total= x+y+e;
         return new double[] {(double)(total)/x,(double)(total)/e,(double)(total)/y};
-    }
-
-    public boolean exists(long gameID) {
-        return this.gameRepository.findById(gameID).isPresent();
     }
 }

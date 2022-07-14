@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Controller
@@ -39,6 +40,12 @@ public class LocaleController {
         locale.addUser(user);
         this.service.post(locale);
     }
+    @GetMapping("/locale")
+    public String showAllLocale (Model model){
+        Collection<Locale> locales = this.service.get();
+        model.addAttribute("list",locales);
+        return "section";
+    }
     @GetMapping("/locale/{id}")
     public String showLocale (Model model, @PathVariable long id, HttpServletRequest request){
         Locale locale = this.service.get(id);
@@ -49,22 +56,16 @@ public class LocaleController {
         model.addAttribute("locale",locale);
         return "locale";
     }
-    @GetMapping("/locale")
-    public String showAllLocale (Model model){
-        ArrayList<Locale> locales = this.service.get();
-        //model.addAttribute("locales",locales);
-        return "section";
-    }
     @PostMapping("/edit_locale/add_user")
     @ResponseStatus(HttpStatus.OK)
-    public String addUser(Model model, long localeID, User user){
-        this.service.put(localeID,user);
+    public String addUser(Model model, @RequestParam long localeid, @RequestParam String userid){
+        this.service.addUser(userid, localeid);
         return "confirm";
     }
     @PostMapping("/edit_locale/add_match")
     @ResponseStatus(HttpStatus.OK)
-    public String addMatch(Model model, long localeID, long matchID){
-        this.service.put(localeID,matchID);
+    public String addGame(Model model,@RequestParam long localeid,@RequestParam long gameid){
+        this.service.addGame(gameid,localeid);
         return "confirm";
     }
 

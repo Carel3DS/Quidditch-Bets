@@ -4,30 +4,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
 import java.util.List;
 
-@Entity
+
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "user")
+
 public class User {
     //ATTRIBUTES
-    @Id
+
     private String name;              //Primary key
-    @Column(nullable = false,unique = true)
     private String email;             //Unique
-    @Column(nullable = false,unique = true)
     private String dni;              //Unique
-    @Column(nullable = false)
     private String pass;             //Not null
     private String team;
     private String description;
     private double balance = 0;     //Not null. DEFAULT = 0, CHECK(balance>=0)
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles;
+
+
 
     //Stats
     private double win;
@@ -36,9 +32,7 @@ public class User {
     private double losses;
 
     //RELATIONSHIP
-    @OneToMany(cascade = CascadeType.ALL)
     private List<Bet> bets;
-    @ManyToOne
     private Locale locale;
 
 
@@ -49,7 +43,6 @@ public class User {
         this.dni = dni;
         this.pass = pass;
         this.balance = 0;
-        this.roles = List.of(roles);
     }
 
     public void addBet(Bet bet){
@@ -58,4 +51,15 @@ public class User {
     public void removeBet(Bet bet){ this.bets.remove(bet);}
     public double performance(){ return this.win/(this.win+this.lose);}
     public double totalEarnings(){return this.earnings-this.losses;}
+
+    //TODO: fix 'user.hasBet()' method
+    public boolean hasBet(Game game) {
+        boolean res = false;
+        int i = 0;
+        while(!res){
+            Bet bet = bets.get(i);
+            res = bet.getGame().equals(game);
+        }
+        return res;
+    }
 }

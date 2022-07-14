@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
 
 @RequestMapping("/api")
 @RestController
@@ -41,7 +40,7 @@ public class RESTuser {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @Transactional
+
     @DeleteMapping("/user/{name}")
     public ResponseEntity<User> deleteUser(@PathVariable String name){
         if(this.userService.get(name) != null){

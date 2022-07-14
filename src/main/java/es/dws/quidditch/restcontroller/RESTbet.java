@@ -1,6 +1,7 @@
 package es.dws.quidditch.restcontroller;
 
 import es.dws.quidditch.model.Bet;
+import es.dws.quidditch.model.Game;
 import es.dws.quidditch.model.User;
 import es.dws.quidditch.service.BetService;
 import es.dws.quidditch.service.GameService;
@@ -11,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
 
 @RequestMapping("/api")
 @RestController
@@ -32,9 +32,16 @@ public class RESTbet {
             User user = this.userService.get(name);
             double balance = user.getBalance();
             if(balance>=bet.getAmount()){
-                bet.setGame(this.gameService.get(gameID));
-                this.betService.post(user,bet);
-                return new ResponseEntity<>(HttpStatus.OK);
+                Game game = this.gameService.get(gameID);
+                if(!user.hasBet(game)){
+                    bet.setGame(this.gameService.get(gameID));
+                    this.userService.add(name,bet);
+
+                    return new ResponseEntity<>(HttpStatus.OK);
+                }else{
+                    return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                }
+
             }else {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
@@ -60,7 +67,7 @@ public class RESTbet {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @Transactional
+
     @DeleteMapping("/bet")
     public ResponseEntity<Bet> deleteBet(@RequestParam long id){
         Bet bet = this.betService.get(id);

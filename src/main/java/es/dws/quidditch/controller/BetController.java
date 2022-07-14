@@ -23,8 +23,9 @@ public class BetController {
     public String create(Bet bet, String userID){
         User user = this.userService.get(userID);
         if(user != null){
-            user = this.service.post(user,bet);
-            this.userService.put(userID,user);
+            bet.setUser(user);
+            this.service.post(bet);
+            this.userService.add(userID,bet);
             return "confirm";
         }else{
             return "error";

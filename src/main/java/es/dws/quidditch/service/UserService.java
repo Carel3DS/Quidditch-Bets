@@ -2,83 +2,82 @@ package es.dws.quidditch.service;
 
 import es.dws.quidditch.model.Bet;
 import es.dws.quidditch.model.User;
-import es.dws.quidditch.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+//not persistent
 @Service
 public class UserService {
-
     @Autowired
     private BetService betService;
-    @Autowired
-    private UserRepository userRepository;
+    
+    //Not persistent
+    private Map<String, User> users= new ConcurrentHashMap<>();
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    //API REST service (ID = UserID)
     public void post(User user){
-        user.setPass(passwordEncoder.encode(user.getPass()));
-        userRepository.save(user);
+        users.put(user.getName(),user);
     }
-    public User get(String userID){
-        Optional<User> op = userRepository.findByName(userID);
-        return op.orElse(null);
+
+    public void put(String id, User user){
+        users.put(id,user);
     }
-    public void put(String userID, User newUser){
-        newUser.setName(userID);
-        userRepository.save(newUser);
+
+    public Collection<User> get(){
+        return users.values();
     }
-    public void put(User user) {
-        if(this.exists(user.getName())){
-            userRepository.save(user);
+
+    public User get(String id){
+        return users.get(id);
+    }
+
+    public User delete(String id){
+        User user = users.get(id);
+        Collection<Bet> bets = user.getBets();
+        if(!bets.isEmpty()){
+            for (Bet bet: bets){
+                betService.delete(bet.getId());
+            }
         }
-    }
-    public User delete(String userID){
-        User user = userRepository.findByName(userID).orElse(null);
-        if (user!=null){
-            betService.delete(user);
-            user.getBets().size();
-            userRepository.deleteByName(userID);
-        }
+        users.remove(id);
         return user;
     }
     ////////////////////////////
     // SPECIFIC USER SERVICES //
     ////////////////////////////
 
-    public void addBet(String userID, Bet bet){
-        User user = this.userRepository.findByName(userID).orElse(null);
-        if(user != null){
-            user.addBet(bet);
-            user.setBalance(user.getBalance()-bet.getAmount());
-            userRepository.save(user);
-        }
+    public void add(String userID, Bet bet){
+        User user = this.users.get(userID);
+        user.addBet(bet);
+        user.setBalance(user.getBalance()-bet.getAmount());
+        users.put(userID,user);
     } //Assigns a new bet to a user
+
     //TODO: Set control when removing a bet in user controller
     public void remove(String userID, Bet bet){
         User user = this.get(userID);
         user.setBalance(user.getBalance()+bet.getAmount());
         user.removeBet(bet);
         this.betService.delete(bet.getId());
+        users.put(userID,user);
     }//Deletes bet given user and betID
 
     public boolean exists(String userID) {
-        return this.userRepository.findByName(userID).isPresent();
+        return this.users.containsKey(userID);
     }
 
     //removes all the bets and refunds users money
+    //TODO: apply locale fees
     public void refund(String userID) {
-        User user = this.get(userID);
+        User user = users.get(userID);
         for(Bet bet:user.getBets()) {
-            this.remove(userID,bet);
+            user.setBalance(user.getBalance()+bet.getAmount());
+            user.removeBet(bet);
         }
-
+        users.put(userID,user);
 
     }
-
-
 }
