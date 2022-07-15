@@ -24,7 +24,7 @@
             <div class="col-md-12">
                 <section class="py-4 py-xl-5">
                     <div class="text-white bg-dark border rounded border-0 p-4 p-md-5" style="height: 226.4px;margin: 0px;">
-                        <h2 class="fw-bold text-white mb-3">{{section}}</h2>
+                        <h2 class="fw-bold text-white mb-3">Nuestros locales</h2>
                         <p class="mb-4">Tincidunt laoreet leo, adipiscing taciti tempor. Primis senectus sapien, risus donec ad fusce augue interdum.</p>
                     </div>
                 </section>
@@ -36,12 +36,14 @@
                     <div class="text-white bg-dark border rounded border-0 p-4 p-md-5" style="margin-bottom: 48px;"><input type="search" style="margin-bottom: 24px;" placeholder="Buscar...">
                         <div class="row articles rounded-3">
                             <div class="col col-sm-6 col-md-3">
+                                {{#locale}}
                                 <div class="card" style="background-color: #333333;border-radius: 0.25rem;">
                                     <div class="card-body"><a href="#"><img class="img-fluid" src="desk.jpg"></a>
                                         <h3 class="name">{{name}}</h3>
                                         <p class="description">Horario: {{open}}-{{close}}<br>Dirección: {{address}}<br>Tasas: {{fee}}</p><a class="btn btn-primary border-0" href="/locale/{{id}}">Visitar</a>
                                     </div>
                                 </div>
+                                {{/locale}}
                             </div>
                         </div>
                     </div>

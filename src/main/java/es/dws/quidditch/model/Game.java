@@ -19,7 +19,7 @@ public class Game {
     //ATTRIBUTES
 
     private long id;            //Primary Key
-    private String team1;       //Not null)
+    private String team1;       //Not null
     private String team2;       //Not null
     private LocalDate date;     //Not null
     private LocalTime time;     //Not null

@@ -32,8 +32,8 @@ public class UserController {
     public String index(Model model){
         Collection<Game> games = gameService.get();
         Collection<Locale> locales = localeService.get();
-        model.addAttribute("games",games);
-        model.addAttribute("locales",locales);
+        model.addAttribute("game",games);
+        model.addAttribute("locale",locales);
         return "index";
     }
     @GetMapping("/nav")

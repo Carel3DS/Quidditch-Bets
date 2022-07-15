@@ -26,7 +26,7 @@
                 <section class="py-4 py-xl-5" style="background: #222222;">
                     <div class="container" style="height: 100%;">
                         <div class="text-center p-4 p-lg-5">
-                            <h1 class="fw-bold mb-4">{{name}}</h1>
+                            <h1 class="fw-bold mb-4">{{locale.name}}</h1>
                         </div>
                     </div>
                 </section>
@@ -37,7 +37,7 @@
                 <div class="card" style="background-color: #222222;border-radius: 8px;">
                     <div class="card-body" style="border-style: none;height: 480px;">
                         <h2 class="text-center card-title">Ubicación</h2>
-                        <div style="text-align: center;"><iframe class="border rounded-0 border-5 border-secondary" allowfullscreen="" frameborder="0" loading="lazy" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyATj7a6kaGZ0G-hl7haMo7AWkuePzD1cxA&amp;q={{address}}&amp;zoom=15" width="95%" height="380"></iframe></div>
+                        <div style="text-align: center;"><iframe class="border rounded-0 border-5 border-secondary" allowfullscreen="" frameborder="0" loading="lazy" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyATj7a6kaGZ0G-hl7haMo7AWkuePzD1cxA&amp;q={{locale.address}}&amp;zoom=15" width="95%" height="380"></iframe></div>
                     </div>
                 </div>
             </div>
@@ -52,16 +52,23 @@
                                         <th>Partido</th>
                                         <th>Fecha</th>
                                         <th>Hora</th>
-                                        <th></th>
+                                        {{#self}}<th></th>{{/self}}
                                     </tr>
                                 </thead>
                                 <tbody>
+                                {{#game}}
                                     <tr>
                                         <td>{{team1}} vs {{team2}}</td>
                                         <td>{{date}}</td>
                                         <td>{{time}}</td>
-                                        <td><a class="btn btn-primary rounded-0" href="/locale/{{id}}" style="color: white;">{{team1}}</a><a class="btn btn-dark rounded-0" href="/locale/{{id}}" style="color: white;">X</a><a class="btn btn-warning rounded-0" href="/locale/{{id}}" style="background-color: orangered;color: white;">{{team2}}</a></td>
+                                        {{#self}}
+                                        <td><a class="btn btn-primary rounded-0" href="/locale/{{locale.id}}" style="color: white;">{{team1}}</a>
+                                            <a class="btn btn-dark rounded-0" href="/locale/{{locale.id}}" style="color: white;">X</a>
+                                            <a class="btn btn-warning rounded-0" href="/locale/{{locale.id}}" style="background-color: orangered;color: white;">{{team2}}</a>
+                                        </td>
+                                        {{/self}}
                                     </tr>
+                                {{/game}}
                                 </tbody>
                             </table>
                         </div>

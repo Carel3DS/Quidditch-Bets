@@ -39,21 +39,28 @@ public class LocaleController {
         User user =this.userService.get("user");
         locale.addUser(user);
         this.service.post(locale);
+        this.service.addGame(1,1);
     }
     @GetMapping("/locale")
     public String showAllLocale (Model model){
         Collection<Locale> locales = this.service.get();
-        model.addAttribute("list",locales);
+        model.addAttribute("locale",locales);
         return "section";
     }
     @GetMapping("/locale/{id}")
     public String showLocale (Model model, @PathVariable long id, HttpServletRequest request){
         Locale locale = this.service.get(id);
         List<Game> games = locale.getGames();
-        User user = this.userService.get(request.getUserPrincipal().getName());
-        model.addAttribute("amount",user.getBalance());
-        model.addAttribute("games",games);
+        if(request.getUserPrincipal()!=null && this.userService.get(request.getUserPrincipal().getName()).getLocale().getId() == id){
+            User user = this.userService.get(request.getUserPrincipal().getName());
+            model.addAttribute("amount",user.getBalance());
+            model.addAttribute("self",true);
+        }else{
+            model.addAttribute("self",false);
+        }
+        model.addAttribute("game",games);
         model.addAttribute("locale",locale);
+
         return "locale";
     }
     @PostMapping("/edit_locale/add_user")

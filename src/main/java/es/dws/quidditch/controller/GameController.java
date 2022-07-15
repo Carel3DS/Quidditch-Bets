@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -18,6 +19,13 @@ public class GameController {
 
     @Autowired
     private GameService service;
+
+    @PostConstruct
+    public void postConstruct(){
+        Game game = new Game("Slytherin","Gryffindor","2022-05-12","20:00");
+        service.post(game);
+    }
+
     @PostMapping("/newGame")
     @ResponseStatus(HttpStatus.CREATED)
     public String create(Game game){
@@ -26,8 +34,9 @@ public class GameController {
     }
     @GetMapping("/games")
     public String show (Model model){
-        Collection<Game> game = this.service.get();
-        return "section";
+        Collection<Game> games = this.service.get();
+        model.addAttribute("game",games);
+        return "games";
     }
     @PostMapping("/edit_game")
     @ResponseStatus(HttpStatus.OK)
